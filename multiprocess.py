@@ -2,6 +2,7 @@ import praw
 import json
 import concurrent.futures
 import time
+from kafka import KafkaProducer
 
 def create_reddit_object(json_file="reddit_config.json"):
     with open(json_file) as f:
@@ -13,32 +14,23 @@ def create_reddit_object(json_file="reddit_config.json"):
     return reddit
 
 
+def Producer(p_message,p_topicname):    
+    producer= KafkaProducer(bootstrap_servers=['localhost:9092'],api_version=(0,10,1))
+    message=json.dumps(p_message,ensure_ascii=False).encode('utf-8')
+    producer.send(p_topicname,message)
 
-def getData(sub,count=100):
+def getData(sub,count=5):
     reddit= create_reddit_object()
     print(f"{sub} data Collecting...")
     subred=reddit.subreddit(sub)
-    new= subred.new(limit=count)
-    data=[]
+    new= subred.new(limit=count)    
     for i in new:
-        data.append({"title":i.title,"author":str(i.author),"shortlink":i.shortlink})
-    return data
+        data={"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink}
+        Producer(data,'test')
 
 
 if __name__=="__main__": 
     start = time.perf_counter()
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        subreds=["turkey","ankara","learnprogramming"]
+        subreds=["turkey","learnprogramming","ankara"]
         results=executor.map(getData,subreds)
-        data=[]
-        for result in results:
-            data.append(result)
-    print("stop")
-    #Burada dump yapmak yerine kafkaya yolla
-    for i in range(len(subreds)):
-        filename=subreds[i]+'.json'
-        with open(filename, 'w') as fout:
-            json.dump(data[i] , fout)
-    finish=time.perf_counter()
-    print("Finished: ", (finish-start))
-    x=input("Press Enter to Exit")
