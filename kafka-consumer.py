@@ -2,9 +2,15 @@ from kafka import KafkaConsumer
 import json
 import pymongo
 
-def connect_database():#get connection from config file
-    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
-    database= myclient["reddit"]
+def get_config(path="config/database_config.json"):
+    with open(path) as f:
+        config= json.load(f)
+    return config["client_address"],config["database_name"]
+
+def connect_database():
+    address,name=get_config()
+    myclient = pymongo.MongoClient(address)
+    database= myclient[name]
     return database
 
 def create_table(tablename,msg):
