@@ -2,11 +2,12 @@ import praw
 import json
 import concurrent.futures
 from kafka import KafkaProducer
+#get new data with timer
 
 def get_subs(json_file="subreddits.json"):    
     with open(json_file) as f:
         subs= json.load(f)
-    return subs['subreddits'],subs['postcounts']
+    return subs['subreddits']
 
 def create_reddit_object(json_file="reddit_config.json"):
     with open(json_file) as f:
@@ -23,7 +24,7 @@ def producer(p_message,p_topicname):
     message=json.dumps(p_message,ensure_ascii=False).encode('utf-8')
     producer.send(p_topicname,message)
 
-def get_sub_data(sub,post_count):
+def get_sub_data(sub,post_count=100):
     reddit= create_reddit_object()
     print(f"{sub} data Collecting...")
     subred=reddit.subreddit(sub)
@@ -34,5 +35,5 @@ def get_sub_data(sub,post_count):
 
 if __name__=="__main__":
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        subreds,postcounts=get_subs()    
-        results=executor.map(get_sub_data,subreds,postcounts)
+        subreds=get_subs()    
+        results=executor.map(get_sub_data,subreds)
