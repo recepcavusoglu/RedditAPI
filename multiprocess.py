@@ -29,8 +29,7 @@ def get_sub_data(sub,post_count):
     subred=reddit.subreddit(sub)
     new= subred.new(limit=post_count)    
     for i in new:
-        #producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
-        pass
+        producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
 
 
 if __name__=="__main__":
