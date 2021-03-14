@@ -2,8 +2,11 @@ import praw
 import json
 import concurrent.futures
 from kafka import KafkaProducer
-#get new data with timer
+#import datetime
 
+#get new data with timer
+#add redis
+#check latest data
 
 def get_subs(path="config/subreddits.json"):    
     with open(path) as f:
