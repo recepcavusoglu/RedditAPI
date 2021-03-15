@@ -34,6 +34,7 @@ def consumer():
     consumer= KafkaConsumer('test',bootstrap_servers=['localhost:9092'],api_version=(0,10))
     for message in consumer:
         msg=json.loads(message.value)
+        print(msg)
         sub=msg['sub']        
         msg.pop('sub')
         write_data(sub,msg)

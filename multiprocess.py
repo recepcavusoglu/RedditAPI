@@ -23,7 +23,7 @@ def check_redis(subname):
 
 def get_redis_data(subname):
     conn=create_redis()
-    return conn.get(subname)
+    return int(conn.get(subname))
 
 def set_redis_Data(subname,data):
     conn=create_redis()
@@ -59,31 +59,34 @@ def producer(p_message,p_topicname):
     except Exception as e:
         print("Producer Error: ",e)
 
-def get_sub_data(sub,post_count=5):
+def get_sub_data(sub,post_count=100):
     try:
+        stop=0
         reddit= create_reddit_object()
         print(f"{sub} data Collecting...")
         if check_redis(sub):
             print("Redis data founded for ", sub)
-            stop= int(get_redis_data(sub))
+            stop= get_redis_data(sub)
+        else:
+            print("Redis data not founded for ", sub)
         new=reddit.subreddit(sub).new(limit=post_count)            
     except Exception as e:
         print("API Error: ",e)
         return None
 
-    print("stop: ",stop)
     start_flag=0
     for i in new:
-        if start_flag==0:
+        if start_flag==0 and stop!=get_redis_data(sub):
             set_redis_Data(sub,int(i.created_utc))
             start_flag+=1
             print("Redis data updated for: ", sub)
         
-        if i.created_utc<=stop:
-            print("Data exist stopping")
+        if i.created_utc>stop:            
+            #print({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink})
+            producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
+        else:
+            print(sub, "Data exist stopping")
             break
-        print({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink})
-        #producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
 
 def call_data(p_sublist):
     if p_sublist:
@@ -109,10 +112,10 @@ def arg_parser():
         sys.exit(0)
 
 if __name__=="__main__":
-    sublist=True
+    sublist=False
     #sublist=arg_parser()
     call_data(sublist)
-    schedule.every(1).minutes.do(call_data,sublist)
+    schedule.every(5).minutes.do(call_data,sublist)
     while True:
         schedule.run_pending()
 
