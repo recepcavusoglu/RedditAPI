@@ -5,10 +5,17 @@ import concurrent.futures
 from kafka import KafkaProducer
 import schedule
 import sys
+import redis
 #import datetime
 
-#add redis
-#check latest data
+#sen data and check from redis
+
+def create_redis(path="config/redis_config.json"):
+    with open(path) as f:
+        config=json.load(f)
+    client=redis.Redis(host=config['host'],port=config['port'])
+    return client
+
 
 def get_subs(path="config/subreddits.json"):    
     with open(path) as f:
@@ -57,11 +64,12 @@ def get_sub_data(sub,post_count=1500):
         producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
 
 def call_data(p_sublist):
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        if p_sublist:
-            subreds=get_subs()
-        else:
-            subreds=get_user_subs()  
+    if p_sublist:
+        subreds=get_subs()
+    else:
+        subreds=get_user_subs()
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:          
         results=executor.map(get_sub_data,subreds)
 
 def arg_parser():
@@ -79,7 +87,8 @@ def arg_parser():
         sys.exit(0)
 
 if __name__=="__main__":
-    sublist=arg_parser()
+    sublist=False
+    #sublist=arg_parser()
     call_data(sublist)
     schedule.every(1).minutes.do(call_data,sublist)
     while True:
