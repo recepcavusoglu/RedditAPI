@@ -10,11 +10,6 @@ import datetime
 from datetime import timezone
 import time
 
-#sen data and check from redis
-def get_unix_time():
-    dt = datetime.datetime.now()   
-    timestamp = dt.timestamp() 
-    return int(timestamp)
 
 def create_redis(path="config/redis_config.json"):
     with open(path) as f:
