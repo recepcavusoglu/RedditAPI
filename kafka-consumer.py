@@ -2,7 +2,7 @@ from kafka import KafkaConsumer
 import json
 import pymongo
 
-def get_config(path="config/database_config.json"):
+def get_config(path="config/mongo_config.json"):
     with open(path) as f:
         config= json.load(f)
     return config["client_address"],config["database_name"]
