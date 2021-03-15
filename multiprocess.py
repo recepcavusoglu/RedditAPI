@@ -2,11 +2,12 @@ import praw
 import json
 import concurrent.futures
 from kafka import KafkaProducer
+import schedule
 #import datetime
 
-#get new data with timer
 #add redis
 #check latest data
+#add argparser to choose get_subs or get _user_subs
 
 def get_subs(path="config/subreddits.json"):    
     with open(path) as f:
@@ -38,12 +39,15 @@ def producer(p_message,p_topicname):
     except Exception as e:
         print("Producer Error: ",e)
 
-def get_sub_data(sub,post_count=100):
+def get_sub_data(sub,post_count=1500):
     try:
         reddit= create_reddit_object()
         print(f"{sub} data Collecting...")
-        subred=reddit.subreddit(sub)
-        new= subred.new(limit=post_count)
+        #pull redis data
+        #if redisdata empty:
+        new=reddit.subreddit(sub).new(limit=post_count)
+        #else:
+        #new=reddit.subreddit(sub).new(unixtimestamp start-finish period)
     except Exception as e:
         print("API Error: ",e)
         return None
@@ -51,9 +55,14 @@ def get_sub_data(sub,post_count=100):
     for i in new:
         producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
 
+def call_data():
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        subreds=get_subs()    
+        results=executor.map(get_sub_data,subreds)
 
 if __name__=="__main__":
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        subreds=get_user_subs()    
-        results=executor.map(get_sub_data,subreds)
+    call_data()
+    schedule.every(1).minutes.do(call_data)
+    while True:
+        schedule.run_pending()
     
