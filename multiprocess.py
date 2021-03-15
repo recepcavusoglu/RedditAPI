@@ -1,13 +1,14 @@
+import argparse
 import praw
 import json
 import concurrent.futures
 from kafka import KafkaProducer
 import schedule
+import sys
 #import datetime
 
 #add redis
 #check latest data
-#add argparser to choose get_subs or get _user_subs
 
 def get_subs(path="config/subreddits.json"):    
     with open(path) as f:
@@ -55,14 +56,33 @@ def get_sub_data(sub,post_count=1500):
     for i in new:
         producer({"sub":sub,"title":i.title,"author":str(i.author),"shortlink":i.shortlink},'test')
 
-def call_data():
+def call_data(p_sublist):
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        subreds=get_subs()    
+        if p_sublist:
+            subreds=get_subs()
+        else:
+            subreds=get_user_subs()  
         results=executor.map(get_sub_data,subreds)
 
+def arg_parser():
+    parser=argparse.ArgumentParser()
+    parser.add_argument("sublist",help="Please specify subreddit list using either json or follow")
+    args=parser.parse_args()
+    if args.sublist=="json":
+        print("Getting subreddit data via json file...")
+        return True
+    elif args.sublist=="follow":
+        print("Getting subreddit data via users follow...")
+        return False
+    else:
+        print("Wrong usage plese use either [json] or [follow] paramater.")
+        sys.exit(0)
+
 if __name__=="__main__":
-    call_data()
-    schedule.every(1).minutes.do(call_data)
+    sublist=arg_parser()
+    call_data(sublist)
+    schedule.every(1).minutes.do(call_data,sublist)
     while True:
         schedule.run_pending()
+
     
