@@ -1,2 +1,4 @@
 # RedditAPI
-![test](/images/system.png)
+<p align="center">
+  <img src="/images/system.png">
+</p>
