@@ -1,0 +1,4 @@
+{
+    "host":"localhost:9092",
+    "topic_name":"test"
+}
