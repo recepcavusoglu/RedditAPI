@@ -44,6 +44,7 @@
 ```
 
 ## Usage
+
 > Getting subreddit data via json
 ```cmd
 python multiprocess.py json
