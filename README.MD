@@ -1,5 +1,5 @@
 # RedditAPI
-> Regularly getting subreddit data and storing it using different technologies.
+> Regularly getting subreddit data and storing it using different technologies like **Redis, Kafka, MongoDB**.
 
 **Used Technologies**:
 * Redis: Stores last pulled posts unixtime to prevent data duplication each subreddit.
