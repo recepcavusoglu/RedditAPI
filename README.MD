@@ -32,7 +32,7 @@
 ```json
 {
     "host":"Host Address",
-    "port":Port Number
+    "port":"Port Number(This value must be int)"
 }
 ```
 > subreddits.json: Stores subreddits list
