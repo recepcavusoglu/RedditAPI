@@ -38,8 +38,8 @@
 > kafka_config.json: Stores Kafka configs
 ```json
 {
-    "host":"localhost:9092",
-    "topic_name":"test"
+    "host":"Host Address",
+    "topic_name":"Topic Name"
 }
 ```
 > subreddits.json: Stores subreddits list
