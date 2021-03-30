@@ -35,6 +35,13 @@
     "port":"Port Number(This value must be int)"
 }
 ```
+> kafka_config.json: Stores Kafka configs
+```json
+{
+    "host":"localhost:9092",
+    "topic_name":"test"
+}
+```
 > subreddits.json: Stores subreddits list
 
 ```json
